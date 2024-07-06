@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="tr-TR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDV Hesaplama</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #e0f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: #006064;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        .header {
+            background-color: #006064;
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .form-section {
+            margin-bottom: 20px;
+        }
+        .form-section h2 {
+            color: #006064;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px;
+        }
+        .input-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .input-container input[type="text"] {
+            width: 100%;
+            padding: 10px 10px 10px 40px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .input-container .currency-symbol {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: #333;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .buttons button {
+            background-color: #004d40;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            font-weight: 500;
+            width: 23%;
+            box-sizing: border-box;
+        }
+        .buttons button:hover {
+            background-color: #00796b;
+        }
+        .buttons button.selected {
+            background-color: #00838f;
+            transform: scale(1.05);
+        }
+        .calculate-button {
+            background-color: #00838f;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+            font-weight: 500;
+            width: 100%;
+            text-align: center;
+        }
+        .calculate-button:hover {
+            background-color: #0097a7;
+        }
+        .result {
+            margin-top: 20px;
+            color: #333;
+            font-size: 18px;
+        }
+        .info-section {
+            background-color: #e0f7fa;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            margin-bottom: 20px;
+        }
+        .info-section p {
+            color: #006064;
+            line-height: 1.6;
+        }
+        .github-button {
+            background-color: #24292e;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .github-button:hover {
+            background-color: #3b444b;
+        }
+        @media (max-width: 600px) {
+            .buttons button {
+                width: 48%;
+                margin-bottom: 10px;
+            }
+            .buttons {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>KDV Hesaplama</h1>
+    </div>
+    <div class="form-section">
+        <h2>Hesaplama Aracı</h2>
+        <label for="amount">Tutar (TL):</label>
+        <div class="input-container">
+            <span class="currency-symbol">₺</span>
+            <input type="text" id="amount" placeholder="Tutar giriniz" oninput="formatCurrency(this)" onfocus="removeFormatting(this)" onblur="formatCurrency(this)">
+        </div>
+        
+        <div class="buttons">
+            <button onclick="setKDVRate(20, this)">%20</button>
+            <button onclick="setKDVRate(10, this)">%10</button>
+            <button onclick="setKDVRate(1, this)">%1</button>
+            <button onclick="setKDVRate(0, this)">Diğer</button>
+        </div>
+        
+        <label for="kdv-rate" id="kdv-label" style="display:none;">KDV Oranı (%):</label>
+        <input type="number" id="kdv-rate" placeholder="KDV oranı giriniz" style="display:none;">
+        
+        <button class="calculate-button" onclick="calculateKDV()">Hesapla</button>
+        
+        <div class="result" id="result"></div>
+    </div>
+    <div class="info-section">
+        <h2>KDV Hakkında Bilgi</h2>
+        <p>KDV (Katma Değer Vergisi), mal ve hizmetlerin üretimi ve dağıtımı aşamalarında yaratılan katma değeri vergilendiren bir tüketim vergisidir. KDV oranları ülkelere ve ürün/hizmet türlerine göre değişiklik gösterebilir. Türkiye'de genel KDV oranı %18'dir ancak bazı temel gıda maddeleri, kitaplar ve sağlık hizmetleri gibi ürünler için indirimli oranlar uygulanmaktadır.</p>
+        <p>KDV'nin hesaplanması, ürün veya hizmet bedeline uygulanacak KDV oranının belirlenmesiyle başlar. Örneğin, 100 TL'lik bir ürün için %18 KDV oranı uygulandığında, KDV tutarı 18 TL olacak ve toplam tutar 118 TL olacaktır.</p>
+    </div>
+    <a href="https://github.com/uzungoltr/kdvhesap" class="github-button" target="_blank">Projeye Katkıda Bulun</a>
+</div>
+
+<script>
+    function setKDVRate(rate, element) {
+        var buttons = document.querySelectorAll('.buttons button');
+        buttons.forEach(button => button.classList.remove('selected'));
+
+        element.classList.add('selected');
+
+        if(rate === 0) {
+            document.getElementById('kdv-rate').style.display = 'block';
+            document.getElementById('kdv-label').style.display = 'block';
+        } else {
+            document.getElementById('kdv-rate').value = rate;
+            document.getElementById('kdv-rate').style.display = 'none';
+            document.getElementById('kdv-label').style.display = 'none';
+        }
+    }
+
+    function removeFormatting(input) {
+        input.value = input.value.replace(/[₺,]/g, '');
+    }
+
+    function formatCurrency(input) {
+        let value = input.value.replace(/[^0-9]/g, '');
+        if(value) {
+            let formattedValue = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value / 100);
+            input.value = formattedValue;
+        }
+    }
+
+    function calculateKDV() {
+        let amount = document.getElementById('amount').value.replace(/\./g, '').replace(',', '.');
+        let kdvRate = document.getElementById('kdv-rate').value;
+        
+        if(amount && kdvRate) {
+            let kdvAmount = (amount * kdvRate) / 100;
+            let totalAmount = parseFloat(amount) + kdvAmount;
+            
+            document.getElementById('result').innerHTML = 
+                'KDV Tutarı: ' + kdvAmount.toFixed(2) + ' TL<br>' +
+                'Toplam Tutar: ' + totalAmount.toFixed(2) + ' TL';
+        } else {
+            document.getElementById('result').innerHTML = 'Lütfen tüm alanları doldurun.';
+        }
+    }
+</script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMFNWPRCJJ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMFNWPRCJJ');
+</script>
+</body>
