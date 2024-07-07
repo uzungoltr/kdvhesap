@@ -34,12 +34,17 @@
             border-radius: 10px 10px 0 0;
             margin-bottom: 20px;
             display: flex;
-            align-items: center; /* Yatay hizalama ekledik */
-            justify-content: center; /* Dikey hizalama ekledik */
+            align-items: center;
+            justify-content: center;
         }
         .header h1 {
             margin: 0;
-            font-size: 1.5rem; /* Mobil için font boyutunu ayarladık */
+            font-size: 1.5rem;
+        }
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
         }
         .form-section {
             margin-bottom: 20px;
@@ -143,12 +148,12 @@
         }
         @media (max-width: 600px) {
             .header h1 {
-                font-size: 1.2rem; /* Mobil için font boyutunu biraz daha küçülttük */
+                font-size: 1.2rem;
             }
             .logo {
-                width: 40px; /* Mobil için logo boyutunu biraz daha küçülttük */
-                height: 40px; /* Mobil için logo boyutunu biraz daha küçülttük */
-                margin-right: 8px; /* Mobil için logo ile başlık arasındaki boşluğu biraz daha azalttık */
+                width: 40px;
+                height: 40px;
+                margin-right: 8px;
             }
         }
     </style>
@@ -161,12 +166,16 @@
     </div>
     <div class="form-section">
         <h2>Hesaplama Aracı</h2>
-        <label for="amount">Tutar (TL):</label>
+        <label for="amount-inclusive">KDV Dahil Tutar (TL):</label>
         <div class="input-container">
             <span class="currency-symbol">₺</span>
-            <input type="text" id="amount" placeholder="Tutar giriniz" oninput="formatCurrency(this)" onfocus="removeFormatting(this)" onblur="formatCurrency(this)">
+            <input type="text" id="amount-inclusive" placeholder="KDV dahil tutar giriniz" oninput="formatCurrency(this)" onfocus="removeFormatting(this)" onblur="formatCurrency(this)">
         </div>
-        
+        <label for="amount-exclusive">KDV Hariç Tutar (TL):</label>
+        <div class="input-container">
+            <span class="currency-symbol">₺</span>
+            <input type="text" id="amount-exclusive" placeholder="KDV hariç tutar giriniz" oninput="formatCurrency(this)" onfocus="removeFormatting(this)" onblur="formatCurrency(this)">
+        </div>
         <div class="buttons">
             <button onclick="setKDVRate(20, this)">%20</button>
             <button onclick="setKDVRate(10, this)">%10</button>
@@ -219,14 +228,22 @@
     }
 
     function calculateKDV() {
-        let amount = document.getElementById('amount').value.replace(/\./g, '').replace(',', '.');
+        let amountInclusive = document.getElementById('amount-inclusive').value.replace(/\./g, '').replace(',', '.');
+        let amountExclusive = document.getElementById('amount-exclusive').value.replace(/\./g, '').replace(',', '.');
         let kdvRate = document.getElementById('kdv-rate').value;
         
-        if(amount && kdvRate) {
-            let kdvAmount = (amount * kdvRate) / 100;
-            let totalAmount = parseFloat(amount) + kdvAmount;
-            
+        if(amountInclusive && kdvRate) {
+            let netAmount = amountInclusive / (1 + kdvRate / 100);
+            let kdvAmount = amountInclusive - netAmount;
             document.getElementById('result').innerHTML = 
+                'KDV Hariç Tutar: ' + netAmount.toFixed(2) + ' TL<br>' +
+                'KDV Tutarı: ' + kdvAmount.toFixed(2) + ' TL<br>' +
+                'Toplam Tutar: ' + amountInclusive + ' TL';
+        } else if (amountExclusive && kdvRate) {
+            let kdvAmount = (amountExclusive * kdvRate) / 100;
+            let totalAmount = parseFloat(amountExclusive) + kdvAmount;
+            document.getElementById('result').innerHTML = 
+                'KDV Hariç Tutar: ' + amountExclusive + ' TL<br>' +
                 'KDV Tutarı: ' + kdvAmount.toFixed(2) + ' TL<br>' +
                 'Toplam Tutar: ' + totalAmount.toFixed(2) + ' TL';
         } else {
@@ -234,6 +251,9 @@
         }
     }
 </script>
+</body>
+</html>
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TMFNWPRCJJ"></script>
 <script>
